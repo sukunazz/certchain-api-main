@@ -10,7 +10,13 @@ import { PrismaClient } from '@prisma/client';
 export class DbService extends PrismaClient implements OnModuleInit {
   private readonly logger = new Logger();
   constructor() {
-    super();
+    super({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL,
+        },
+      },
+    });
   }
 
   async onModuleInit() {

@@ -5,13 +5,13 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { UnauthorizedResponseDto } from 'src/common/dto/unauthorized-response.dto';
-import { EnvService } from 'src/lib/env/env.service';
 import { TeamMemberWithoutPassword } from '../team-member/team-member.service';
 import { OrganizerWithoutPassword } from './auth.interface';
 import { AuthService } from './auth.service';
@@ -36,10 +36,7 @@ import { OrganizerJwtAuthGuard } from './guards/jwt.guard';
 })
 @ApiTags('Organizer Auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly config: EnvService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('sign-in-with-organization')
   @Public()
@@ -129,6 +126,19 @@ export class AuthController {
         teamMember: teamMemberData,
       },
       message: 'Session retrieved',
+    };
+  }
+
+  @Public()
+  @Get('verify-email')
+  @ApiOperation({ summary: 'Verify organizer email via link' })
+  async verifyEmailFromLink(
+    @Query('token') token: string,
+    @Query('email') email: string,
+  ) {
+    await this.authService.verifyOrganizerEmailFromLink(email, token);
+    return {
+      message: 'Email verified successfully',
     };
   }
 }

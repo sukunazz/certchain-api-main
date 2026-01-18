@@ -2,6 +2,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import * as path from 'path';
 import { AppController } from './app.controller';
 
 import { ClsModule } from 'nestjs-cls';
@@ -26,7 +27,7 @@ import { EsewaModule } from './lib/esewa/esewa.module';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-
+      envFilePath: path.resolve(process.cwd(), '.env'),
       validate: (config) => configValidationSchema.parse(config),
     }),
     EventEmitterModule.forRoot({
@@ -35,18 +36,46 @@ import { EsewaModule } from './lib/esewa/esewa.module';
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: EnvService) => ({
-        connection: {
-          host: configService.get('REDIS_HOST'),
-          port: configService.get('REDIS_PORT'),
-          password: configService.get('REDIS_PASSWORD'),
-        },
-        defaultJobOptions: {
-          removeOnComplete: 1000,
-          removeOnFail: 5000,
-          attempts: 3,
-        },
-      }),
+      useFactory: async (configService: EnvService) => {
+        const redisUrl = configService.get('REDIS_URL');
+        if (redisUrl) {
+          // Parse Redis URL: redis://username:password@host:port/db?tls=true
+          const url = new URL(redisUrl);
+          const [username, password] =
+            url.username && url.password
+              ? [url.username, url.password]
+              : ['default', url.password || ''];
+
+          return {
+            connection: {
+              host: url.hostname || 'localhost',
+              port: url.port ? parseInt(url.port) : 6379,
+              username: username || 'default',
+              password: password || undefined,
+              ...((url.protocol === 'rediss:' ||
+                url.searchParams.get('tls') === 'true') && { tls: {} }),
+            },
+            defaultJobOptions: {
+              removeOnComplete: 1000,
+              removeOnFail: 5000,
+              attempts: 3,
+            },
+          };
+        }
+        return {
+          connection: {
+            host: configService.get('REDIS_HOST'),
+            port: configService.get('REDIS_PORT'),
+            password: configService.get('REDIS_PASSWORD'),
+            ...(configService.get('REDIS_TLS') && { tls: {} }),
+          },
+          defaultJobOptions: {
+            removeOnComplete: 1000,
+            removeOnFail: 5000,
+            attempts: 3,
+          },
+        };
+      },
       inject: [ConfigService],
     }),
 

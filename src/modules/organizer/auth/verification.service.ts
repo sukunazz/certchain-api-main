@@ -2,7 +2,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Queue } from 'bullmq';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 import { DbService } from 'src/lib/db/db.service';
 import { EnvService } from 'src/lib/env/env.service';
 import { BadRequestException } from 'src/lib/exceptions/bad-request.exception';
@@ -20,6 +20,10 @@ export class VerificationService {
   ) {}
 
   async verifyEmail(email: string, token: string) {
+    if (!email || !token) {
+      throw new BadRequestException('Email and token are required');
+    }
+
     const verificationToken = await this.db.verificationToken.findUnique({
       where: { email },
     });
@@ -95,7 +99,7 @@ export class VerificationService {
     });
     const added = await this.queue.add('verification-email', {
       email,
-      code: this.config.get('ORGANIZER_VERIFICATION_URL') + code,
+      code,
     });
     this.logger.log('added', added);
     return {

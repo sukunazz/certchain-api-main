@@ -98,6 +98,11 @@ export class TeamMemberService {
         email: 'The email or password is invalid',
       });
     }
+    if (!teamMember.verifiedAt) {
+      throw new BadRequestException('Email not verified', {
+        email: 'Please verify your email before logging in',
+      });
+    }
     delete teamMember.password;
     return teamMember;
   }

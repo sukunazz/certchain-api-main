@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -129,6 +130,16 @@ export class AuthController {
   @ApiOperation({ summary: 'Verify email address' })
   async verifyEmail(@Body() body: VerifyEmailDto) {
     await this.verificationService.verifyEmail(body.token);
+    return {
+      message: 'Email verified successfully',
+    };
+  }
+
+  @Public()
+  @Get('verify-email')
+  @ApiOperation({ summary: 'Verify email address via link' })
+  async verifyEmailFromLink(@Query('token') token: string) {
+    await this.verificationService.verifyEmail(token);
     return {
       message: 'Email verified successfully',
     };

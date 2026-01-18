@@ -197,7 +197,7 @@ model EventSpeaker {
   avatar       String?
   type         String // Speaker or Judge
   eventId      String  @map("event_id")
-  event        Event   @relation(fields: [eventId], references: [id])
+  event        Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -211,7 +211,7 @@ model EventSchedule {
   title       String
   description String?  @db.Text
   eventId     String   @map("event_id")
-  event       Event    @relation(fields: [eventId], references: [id])
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -224,7 +224,7 @@ model FAQ {
   question String
   answer   String @db.Text
   eventId  String @map("event_id")
-  event    Event  @relation(fields: [eventId], references: [id])
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -235,7 +235,7 @@ model FAQ {
 model EventSettings {
   id      String @id @default(cuid())
   eventId String @unique @map("event_id")
-  event   Event  @relation(fields: [eventId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   registrationEnabled Boolean   @default(false) @map("registration_enabled")
   registrationEndDate DateTime? @map("registration_end_date")
@@ -257,7 +257,7 @@ model UserEvent {
   id      String @id @default(uuid())
   user    User   @relation(fields: [userId], references: [id])
   userId  String @map("user_id")
-  event   Event  @relation(fields: [eventId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId String @map("event_id")
 
   status ParticipantStatus @default(ACTIVE)
@@ -278,7 +278,7 @@ model UserEvent {
 model ParticipantBan {
   id          String     @id @default(cuid())
   userEventId String     @unique @map("user_event_id")
-  userEvent   UserEvent  @relation(fields: [userEventId], references: [id])
+  userEvent   UserEvent  @relation(fields: [userEventId], references: [id], onDelete: Cascade)
   reason      String     @db.Text
   bannedAt    DateTime   @default(now()) @map("banned_at")
   bannedById  String     @map("banned_by_id") // TeamMember ID
@@ -296,7 +296,7 @@ enum WebhookType {
 model EventWebhook {
   id        String      @id @default(cuid())
   eventId   String      @map("event_id")
-  event     Event       @relation(fields: [eventId], references: [id])
+  event     Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
   type      WebhookType
   url       String
   secret    String?
@@ -316,7 +316,7 @@ enum PaymentStatus {
 model Payment {
   id            String        @id @default(uuid())
   eventId       String        @map("event_id")
-  event         Event         @relation(fields: [eventId], references: [id])
+  event         Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
   amount        Float
   userId        String        @map("user_id")
   user          User          @relation(fields: [userId], references: [id])
@@ -334,11 +334,11 @@ model Payment {
 model Certificate {
   id          String    @id @default(uuid())
   eventId     String    @map("event_id")
-  event       Event     @relation(fields: [eventId], references: [id])
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
   userId      String    @map("user_id")
-  user        User      @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userEventId String    @unique @map("user_event_id")
-  userEvent   UserEvent @relation(fields: [userEventId], references: [id])
+  userEvent   UserEvent @relation(fields: [userEventId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -363,7 +363,7 @@ model Conversation {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   eventId   String   @unique @map("event_id")
-  event     Event    @relation(fields: [eventId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   participants Participant[]
   messages     Message[]
@@ -374,7 +374,7 @@ model Conversation {
 model Participant {
   id             String       @id @default(cuid())
   conversationId String       @map("conversation_id")
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   userId         String?      @map("user_id")
   user           User?        @relation(fields: [userId], references: [id])
 
@@ -390,7 +390,7 @@ model Message {
   content        String
   isAi           Boolean       @default(false) @map("is_ai")
   createdAt      DateTime      @default(now()) @map("created_at")
-  conversation   Conversation? @relation(fields: [conversationId], references: [id])
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   conversationId String?
   senderId       String?       @map("sender_id")
   sender         Participant?  @relation(fields: [senderId], references: [id])

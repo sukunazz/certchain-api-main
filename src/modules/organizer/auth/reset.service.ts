@@ -2,7 +2,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { randomInt } from 'crypto';
-import { sign, verify } from 'jsonwebtoken';
+import { sign, verify, SignOptions } from 'jsonwebtoken';
 import { DbService } from 'src/lib/db/db.service';
 import { EnvService } from 'src/lib/env/env.service';
 import { BadRequestException } from 'src/lib/exceptions/bad-request.exception';
@@ -24,7 +24,7 @@ export class ResetService {
     const secret = this.config.get('ORGANIZER_RESET_PASSWORD_TOKEN_SECRET');
     this.logger.log('secret', secret);
     const expiresIn = this.config.get('JWT_RESET_PASSWORD_TOKEN_EXPIRES_IN');
-    return sign({ email }, secret, { expiresIn });
+    return sign({ email }, secret as string, { expiresIn } as SignOptions);
   }
 
   async setResetToken(email: string, token: string) {

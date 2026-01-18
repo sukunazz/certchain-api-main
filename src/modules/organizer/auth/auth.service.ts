@@ -84,6 +84,11 @@ export class AuthService {
         'organizer.registered',
         new OrganizerRegisteredEvent(teamMember),
       );
+      if (!teamMember.verifiedAt) {
+        throw new BadRequestException('Email not verified', {
+          email: 'Please verify your email before logging in',
+        });
+      }
       const tokens = await this.tokensService.generate(teamMember);
       return {
         data: {
@@ -148,6 +153,11 @@ export class AuthService {
       loginDto.password,
       loginDto.organizerId,
     );
+    if (!teamMember.verifiedAt) {
+      throw new BadRequestException('Email not verified', {
+        email: 'Please verify your email before logging in',
+      });
+    }
     const tokens = await this.tokensService.generate(teamMember);
     return {
       data: {
@@ -175,6 +185,11 @@ export class AuthService {
       appLoginDto.password,
       organizer.id,
     );
+    if (!teamMember.verifiedAt) {
+      throw new BadRequestException('Email not verified', {
+        email: 'Please verify your email before logging in',
+      });
+    }
     const tokens = await this.tokensService.generate(teamMember);
     return {
       data: {
@@ -197,6 +212,10 @@ export class AuthService {
     return {
       message: 'Verification email sent',
     };
+  }
+
+  async verifyOrganizerEmailFromLink(email: string, token: string) {
+    return this.verificationService.verifyEmail(email, token);
   }
 
   async getSession(teamMemberId: string) {

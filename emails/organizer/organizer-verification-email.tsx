@@ -22,7 +22,7 @@ const OrganizerVerificationEmail: FC<OrganizerVerificationEmailProps> = ({
   code,
   email,
 }) => {
-  const verificationUrl = `${process.env.VERIFICATION_URL}${code}`;
+  const verificationUrl = `${process.env.ORGANIZER_VERIFICATION_URL}${code}&email=${encodeURIComponent(email)}`;
 
   return (
     <Tailwind>

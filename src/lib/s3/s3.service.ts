@@ -41,6 +41,7 @@ s3Client.middlewareStack.add(
 );
 
 const bucket = process.env.S3_BUCKET;
+const publicBaseUrl = process.env.S3_PUBLIC_URL || process.env.S3_URL;
 
 @Injectable()
 export class S3Service {
@@ -65,7 +66,12 @@ export class S3Service {
       const r = await s3Client.send(command);
       console.log('rrrr in upload', r);
 
-      return key;
+      const trimmedBaseUrl = publicBaseUrl?.replace(/\/$/, '');
+      if (!trimmedBaseUrl) {
+        return key;
+      }
+      return `${trimmedBaseUrl}/${key}`;
+
     } catch (error: any) {
       throw new BadRequestException(error.message);
     }
