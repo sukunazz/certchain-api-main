@@ -17,6 +17,7 @@ export class UserEventService {
         },
         include: {
           event: true,
+          certificate: true,
         },
       }),
       this.db.userEvent.count({
