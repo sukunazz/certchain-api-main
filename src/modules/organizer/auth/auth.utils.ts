@@ -26,6 +26,17 @@ export const setTokenCookie = (res: Response, tokens: Tokens) => {
 };
 
 export const clearTokenCookie = (res: Response) => {
-  res.clearCookie(process.env.ORGANIZER_ACCESS_TOKEN_COOKIE_NAME);
-  res.clearCookie(process.env.ORGANIZER_REFRESH_TOKEN_COOKIE_NAME);
+  const isProd = process.env.NODE_ENV === 'production';
+  const sameSite = isProd ? 'none' : 'lax';
+
+  res.clearCookie(process.env.ORGANIZER_ACCESS_TOKEN_COOKIE_NAME, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite,
+  });
+  res.clearCookie(process.env.ORGANIZER_REFRESH_TOKEN_COOKIE_NAME, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite,
+  });
 };

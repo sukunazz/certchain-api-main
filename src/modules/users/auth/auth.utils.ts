@@ -37,11 +37,19 @@ export const setTokenCookie = (res: Response, tokens: Tokens) => {
 export const clearTokenCookie = (res: Response) => {
   const cookieDomain = config.get('USER_COOKIE_DOMAIN');
   const domain = cookieDomain && cookieDomain !== 'localhost' ? cookieDomain : undefined;
+  const isProd = config.get('NODE_ENV') === 'production';
+  const sameSite = isProd ? 'none' : 'lax';
 
   res.clearCookie(config.get('USER_ACCESS_TOKEN_COOKIE_NAME'), {
+    httpOnly: true,
+    secure: isProd,
+    sameSite,
     ...(domain ? { domain } : {}),
   });
   res.clearCookie(config.get('USER_REFRESH_TOKEN_COOKIE_NAME'), {
+    httpOnly: true,
+    secure: isProd,
+    sameSite,
     ...(domain ? { domain } : {}),
   });
 };
