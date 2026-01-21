@@ -53,7 +53,7 @@ export const configValidationSchema = z.object({
   USER_RESET_PASSWORD_URL: z
     .string()
     .default('http://localhost:3000/reset-password/'),
-  USER_COOKIE_DOMAIN: z.string().default('localhost'),
+  USER_COOKIE_DOMAIN: z.string().default(''),
 
   JWT_ACCESS_TOKEN_EXPIRES_IN: z.string().default('7d'),
   JWT_REFRESH_TOKEN_EXPIRES_IN: z.string().default('30d'),

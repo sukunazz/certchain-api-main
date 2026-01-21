@@ -2,12 +2,16 @@ import { Response } from 'express';
 import { Tokens } from './auth.interface';
 
 export const setTokenCookie = (res: Response, tokens: Tokens) => {
+  const isProd = process.env.NODE_ENV === 'production';
+  const sameSite = isProd ? 'none' : 'lax';
+
   res.cookie(
     process.env.ORGANIZER_ACCESS_TOKEN_COOKIE_NAME,
     tokens.accessToken,
     {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProd,
+      sameSite,
     },
   );
   res.cookie(
@@ -15,7 +19,8 @@ export const setTokenCookie = (res: Response, tokens: Tokens) => {
     tokens.refreshToken,
     {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProd,
+      sameSite,
     },
   );
 };
