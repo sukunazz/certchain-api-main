@@ -4,10 +4,12 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
 import { ValidationError } from 'class-validator';
 import * as cookieParser from 'cookie-parser';
 import { json } from 'express';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { ResponseInterceptor } from './constants/interceptors/response/response.interceptor';
 import { BadRequestException } from './lib/exceptions/bad-request.exception';
@@ -15,10 +17,23 @@ import { openApiConfig } from './openapi';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
   const logger = new Logger('NestApplication');
+  const appUrl = configService.get<string>('APP_URL');
+  const allowedOrigins = appUrl
+    ? appUrl.split(',').map((origin) => origin.trim()).filter(Boolean)
+    : true;
+
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.set('trust proxy', 1);
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+    }),
+  );
 
   app.enableCors({
-    origin: true, // or specify your frontend URL
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],

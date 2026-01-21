@@ -1,7 +1,9 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import * as path from 'path';
 import { AppController } from './app.controller';
 
@@ -33,6 +35,10 @@ import { EsewaModule } from './lib/esewa/esewa.module';
     EventEmitterModule.forRoot({
       global: true,
       wildcard: true,
+    }),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 120,
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
@@ -90,6 +96,12 @@ import { EsewaModule } from './lib/esewa/esewa.module';
     EsewaModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
