@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   HttpCode,
   HttpStatus,
   Post,
@@ -119,6 +120,9 @@ export class AuthController {
 
   @Get('session')
   @ApiOperation({ summary: 'Get session' })
+  @Header('Cache-Control', 'no-store')
+  @Header('Pragma', 'no-cache')
+  @Header('Expires', '0')
   async session(@CurrentOrganizer() teamMember: TeamMemberWithoutPassword) {
     const teamMemberData = await this.authService.getSession(teamMember.id);
     return {

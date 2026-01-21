@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   HttpCode,
   HttpStatus,
   Post,
@@ -116,6 +117,9 @@ export class AuthController {
   @Get('session')
   @ApiOperation({ summary: 'Get session' })
   @UseGuards(UserJwtAuthGuard)
+  @Header('Cache-Control', 'no-store')
+  @Header('Pragma', 'no-cache')
+  @Header('Expires', '0')
   async session(@CurrentUser() authUser: UserWithoutPassword) {
     const user = await this.authService.getSession(authUser.id);
     return {
