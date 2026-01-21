@@ -55,6 +55,7 @@
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.7",
     "dayjs": "^1.11.13",
+    "express": "^4.19.2",
     "jsonwebtoken": "^9.0.3",
     "lodash.omit": "^4.5.0",
     "mime-types": "^3.0.2",
