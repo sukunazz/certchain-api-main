@@ -36,10 +36,12 @@ import { EsewaModule } from './lib/esewa/esewa.module';
       global: true,
       wildcard: true,
     }),
-    ThrottlerModule.forRoot({
-      ttl: 60,
-      limit: 120,
-    }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60,
+        limit: 120,
+      },
+    ]),
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: EnvService) => {
