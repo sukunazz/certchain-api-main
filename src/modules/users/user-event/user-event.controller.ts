@@ -33,11 +33,11 @@ export class UserEventController {
     const paginate = new Paginate<Partial<UserEvent> & { certificateId?: string }>(
       paginateQueryDto,
     );
-    const [data, total] = await this.userEventService.getAll(
+    const [data, total] = (await this.userEventService.getAll(
       paginate.params(),
       user.id,
-    );
-    return paginate.response(data as Partial<UserEvent>[], total);
+    )) as [Partial<UserEvent>[], number];
+    return paginate.response(data, total);
   }
 
   @Get(':id')
