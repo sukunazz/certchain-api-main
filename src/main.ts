@@ -23,6 +23,14 @@ async function bootstrap() {
   const allowedOrigins = appUrl
     ? appUrl.split(',').map((origin) => origin.trim()).filter(Boolean)
     : true;
+  const nodeEnv = configService.get<string>('NODE_ENV');
+  const userCookieDomain = configService.get<string>('USER_COOKIE_DOMAIN');
+
+  logger.log(
+    `CORS origins: ${Array.isArray(allowedOrigins) ? allowedOrigins.join(', ') : 'all'}`,
+  );
+  logger.log(`NODE_ENV: ${nodeEnv ?? 'undefined'}`);
+  logger.log(`USER_COOKIE_DOMAIN: ${userCookieDomain ?? 'undefined'}`);
 
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.set('trust proxy', 1);
