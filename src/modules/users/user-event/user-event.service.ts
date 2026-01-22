@@ -8,7 +8,7 @@ export class UserEventService {
   constructor(private readonly db: DbService) {}
 
   async getAll(params: Pagination, userId: string) {
-    return this.db.$transaction([
+    const [data, count] = await this.db.$transaction([
       this.db.userEvent.findMany({
         ...params,
         where: {
@@ -27,6 +27,30 @@ export class UserEventService {
         },
       }),
     ]);
+
+    const normalized = data.map((userEvent) => {
+      const certificate = userEvent.certificate as
+        | { id?: string }
+        | string
+        | null
+        | undefined;
+      const certificateId =
+        typeof certificate === 'string' ? certificate : certificate?.id;
+      return {
+        ...userEvent,
+        certificate:
+          certificate &&
+          typeof certificate !== 'string' &&
+          certificate.id &&
+          certificate.id !== 'undefined'
+            ? certificate
+            : null,
+        certificateId:
+          certificateId && certificateId !== 'undefined' ? certificateId : null,
+      };
+    });
+
+    return [normalized, count];
   }
 
   async getOne(id: string) {
@@ -49,17 +73,41 @@ export class UserEventService {
       },
     });
 
-    if (event?.ban) {
-      delete event.event.link;
-      delete event.event.password;
-      delete event.event.address;
-      delete event.event.city;
-      delete event.event.state;
-      delete event.event.country;
-      delete event.event.pincode;
+    const certificate = event?.certificate as
+      | { id?: string }
+      | string
+      | null
+      | undefined;
+    const certificateId =
+      typeof certificate === 'string' ? certificate : certificate?.id;
+    const normalizedEvent = event
+      ? {
+          ...event,
+          certificate:
+            certificate &&
+            typeof certificate !== 'string' &&
+            certificate.id &&
+            certificate.id !== 'undefined'
+              ? certificate
+              : null,
+          certificateId:
+            certificateId && certificateId !== 'undefined'
+              ? certificateId
+              : null,
+        }
+      : event;
+
+    if (normalizedEvent?.ban) {
+      delete normalizedEvent.event.link;
+      delete normalizedEvent.event.password;
+      delete normalizedEvent.event.address;
+      delete normalizedEvent.event.city;
+      delete normalizedEvent.event.state;
+      delete normalizedEvent.event.country;
+      delete normalizedEvent.event.pincode;
     }
 
-    return event;
+    return normalizedEvent;
   }
 
   isJoined(id: string, userId: string) {
