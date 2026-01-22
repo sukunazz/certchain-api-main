@@ -17,6 +17,8 @@ import { RtStrategy } from './strategies/rt.strategy';
 import { TokensService } from './tokens.service';
 import { VerificationService } from './verification.service';
 
+const runWorkers = process.env.RUN_WORKERS === 'true';
+
 @Module({
   imports: [
     forwardRef(() => UsersModule),
@@ -50,10 +52,14 @@ import { VerificationService } from './verification.service';
   controllers: [AuthController],
   providers: [
     AuthService,
-    UserVerificationMailConsumer,
-    UserResetMailConsumer,
-    UserWelcomeMailConsumer,
-    UserPasswordChangedMailConsumer,
+    ...(runWorkers
+      ? [
+          UserVerificationMailConsumer,
+          UserResetMailConsumer,
+          UserWelcomeMailConsumer,
+          UserPasswordChangedMailConsumer,
+        ]
+      : []),
     JwtStrategy,
     RtStrategy,
     ResetService,

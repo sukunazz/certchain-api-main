@@ -5,6 +5,8 @@ import { CertificateController } from './certificate.controller';
 import { CertificateService } from './certificate.service';
 import { CertificateEmailProcessor } from './processors/certificate-email.processor';
 
+const runWorkers = process.env.RUN_WORKERS === 'true';
+
 @Module({
   imports: [
     BullModule.registerQueue({
@@ -13,6 +15,9 @@ import { CertificateEmailProcessor } from './processors/certificate-email.proces
     MailModule,
   ],
   controllers: [CertificateController],
-  providers: [CertificateService, CertificateEmailProcessor],
+  providers: [
+    CertificateService,
+    ...(runWorkers ? [CertificateEmailProcessor] : []),
+  ],
 })
 export class CertificateModule {}
