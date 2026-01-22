@@ -195,6 +195,9 @@ export class EventService {
         },
       };
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       this.logger.error(error);
       throw new InternalServerErrorException('Failed to fetch event');
     }
